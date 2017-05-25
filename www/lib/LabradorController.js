@@ -1,5 +1,5 @@
-require([ "./lib/vendor/angular.min", "Vector", "Particle", "World", "ConstantForce", "HookLaw", "FixedParticle" ], 
-function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle)
+require([ "./lib/vendor/angular.min", "Vector", "Particle", "World", "ConstantForce", "HookLaw", "FixedParticle", "Spring" ], 
+function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Spring)
 {
     var fabricCanvas = new fabric.Canvas("simulation-canvas");
     var width = fabricCanvas.getWidth();
@@ -8,7 +8,7 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle)
     var world = new World.World();
     var gravitation = new ConstantForce.ConstantForce();
     gravitation.force = new Vector.Vector();
-    gravitation.force.y = -0.00981;
+    gravitation.force.y = -9.81;
     world.laws = [ gravitation, new HookLaw.HookLaw()];
     
     function updatePosition(canvasElement, particle)
@@ -35,6 +35,11 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle)
         .controller('LabradorController', function($scope)
         {
             $scope.createType = "particle";
+            $scope.timeStep = 0.1;
+            $scope.time = 0;
+            $scope.selectedItems = [];
+            $scope.objects = world.objects;
+            
             var objectTypes = 
             {
                 "particle": Particle.Particle,
@@ -45,28 +50,68 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle)
             {
                 var particle = new objectTypes[$scope.createType]();
                 particle.position = new Vector.Vector();
-                particle.position.x = 30;
-                particle.position.y = 30;
+                particle.position.x = 30 + $scope.objects.length * 50;
+                particle.position.y = height*(3/4);
+                particle.type = $scope.createType;
                 particle.caption = "Mass " + ($scope.objects.length+1);
                 particle.canvasObject = addToCanvas(particle);
                 
-                $scope.objects.push(particle);
                 world.objects.push(particle);
             }
             
-            $scope.stepSimulation = function()
+            $scope.addSpring = function()
             {
-                world.step(10);
+                var spring = new Spring.Spring();
+                spring.firstParticle = $scope.selectedItems[0];
+                spring.secondParticle = $scope.selectedItems[1];
+                console.log($scope.selectedItems);
+                spring.relaxedLength = spring.firstParticle.position.diff(spring.secondParticle.position).norm();
+                spring.newtonPerDistance = 1;
+                spring.type = "spring";
+                spring.caption = "Spring " + ($scope.objects.length+1);
+
+                world.objects.push(spring);
+            }
+            
+            function stepAll(timeStep)
+            {
+                world.step(timeStep);
                 world.objects.forEach(function(object) { 
-                    object.step(10); 
+                    object.step(timeStep); 
                     if(object.canvasObject)
                     { 
                         object.canvasObject.top = height-object.position.y; 
                         object.canvasObject.left = object.position.x; 
                     } 
                 });
-                fabricCanvas.renderAll();
             }
+            
+            $scope.stepSimulation = function()
+            {
+                stepAll($scope.timeStep);
+                fabricCanvas.renderAll();
+                $scope.time += $scope.timeStep;
+                $scope.$apply();
+            }
+            
+            $scope.goToTime = function(destinationTime)
+            {
+                var step = $scope.timeStep;
+                // go back in time, use negative time steps
+                if(destinationTime < $scope.time)
+                {
+                    step = -$scope.timeStep;
+                }
+                while(Math.round(($scope.time - destinationTime)*10)/10 >= 0.1)
+                {
+                    stepAll(step);
+                    $scope.time += step;
+                }
+                fabricCanvas.renderAll();
+                fabricCanvas.renderTop();
+                $scope.$apply();
+            }
+            
             
             var simulationTicker = null;
             
@@ -87,7 +132,6 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle)
                 }
             }
             
-            $scope.objects = [ ];
         });
 });
 

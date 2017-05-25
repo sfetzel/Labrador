@@ -18,9 +18,11 @@ and open the template in the editor.
         <div class="sidebar">
             <fieldset>
                 <legend>Objects</legend>
-                <select multiple class="form-control">
-                    <option ng-repeat="object in objects track by $index">{{object.caption}} ({{object.type}})</option>
+                <select multiple class="form-control" ng-model="selectedItems" ng-options="object.caption for object in objects">
                 </select>
+                <span ng-show="selectedItems.length === 2">
+                    <button type="button" class="btn btn-primary" ng-click="addSpring()">Add spring</button>
+                </span>
             </fieldset>
             <fieldset class="form-horizontal">
                 <legend>Add Object</legend>
@@ -52,7 +54,7 @@ and open the template in the editor.
                 <button type="button" class="btn btn-primary" ng-click="stepSimulation()">Step</button>
                 <button type="button" class="btn btn-primary" ng-click="startSimulation()">Start</button>
                 <button type="button" class="btn btn-danger" ng-click="stopSimulation()">Stop</button>
-                <button type="button" class="btn btn-primary" ng-click="revertTo(0)">Back to t=0</button>
+                <button type="button" class="btn btn-primary" ng-click="goToTime(0)">Back to t=0</button>
 
             </fieldset>
         </div>
