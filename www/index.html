@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html ng-app="Labrador">
+    <head>
+        <title>Labrador</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/default.css" />
+        <link rel="stylesheet" href="css/vendor/bootstrap/css/bootstrap.min.css" />
+    </head>
+    <body ng-controller="LabradorController">
+        <!-- http://fabricjs.com/hovering ansehen -->
+        <h1>Labrador</h1>
+        <div class="sidebar">
+            <fieldset>
+                <legend>Objects</legend>
+                <select multiple class="form-control">
+                    <option ng-repeat="object in objects track by $index">{{object.caption}} ({{object.type}})</option>
+                </select>
+            </fieldset>
+            <fieldset class="form-horizontal">
+                <legend>Add Object</legend>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Type</label>
+                    <div class="col-sm-10">
+                        <select class="form-control" ng-model="createType">
+                            <option value="particle">Particle</option>
+                            <option value="fixedParticle">Particle (fixed pos.)</option>
+                        </select>
+                        <button type="button" class="btn btn-primary" ng-click="addObject()">Create</button>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Simulation</legend>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Time Step</label>
+                    <input step="0.1" type="number" class="form-control" ng-model="timeStep" />
+                </div>
+                <div class="form-group">
+                    <label>World Time</label>
+                    <input class="form-control" type="number" disabled="disabled" value="{{time}}"/>
+                </div>
+                
+                
+                <br />
+                <button type="button" class="btn btn-primary" ng-click="stepSimulation()">Step</button>
+                <button type="button" class="btn btn-primary" ng-click="startSimulation()">Start</button>
+                <button type="button" class="btn btn-danger" ng-click="stopSimulation()">Stop</button>
+                <button type="button" class="btn btn-primary" ng-click="revertTo(0)">Back to t=0</button>
+
+            </fieldset>
+        </div>
+        <div class="simulation">
+            <canvas id="simulation-canvas" width="800" height="600"></canvas>
+        </div>
+        <script type="text/javascript" src="lib/vendor/require.js"></script>
+        <script type="text/javascript" src="lib/physics.js"></script>
+        <script type="text/javascript" src="lib/vendor/fabric-1711/fabric.min.js"></script>
+        <script type="text/javascript" src="lib/LabradorController.js"></script>
+    </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2dd94e6e5b24ec308f9ee039bae6c9616a3b2810/fabricjs/fabricjs.d.ts",
+    "raw": "registry:dt/fabricjs#1.5.0+20160908062918",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2dd94e6e5b24ec308f9ee039bae6c9616a3b2810/fabricjs/fabricjs.d.ts"
+  }
+}

@@ -1,0 +1,13 @@
+{
+   "compileOnSave": true,
+   "compilerOptions": {
+       "noImplicitAny" : true,
+       "module": "amd",
+       "outFile": "www/lib/physics.js"
+   },
+    "include": [
+        "www/lib/*.ts"
+    ],
+    "watch": true,
+    "target": "es2015"
+}

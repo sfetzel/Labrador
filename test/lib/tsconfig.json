@@ -1,0 +1,13 @@
+{
+   "compileOnSave": true,
+   "compilerOptions": {
+	
+       "noImplicitAny" : true
+   },
+    "include": [
+        "*.ts",
+	"../../lib/*.ts"
+    ],
+    "watch": true,
+    "target": "es2015"
+}
