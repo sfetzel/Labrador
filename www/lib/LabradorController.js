@@ -17,18 +17,55 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
         particle.position.y = height - canvasElement.top;
     }
     
+    function updateViewPosition(canvasElement, particle)
+    {
+        canvasElement.left = particle.position.x;
+        canvasElement.top = height - particle.position.y;
+    }
+    
+    function updateForceSum(line, particle)
+    {
+        var forcesSum = Vector.Vector.sumList(particle.getForces(world));
+        line.set('x2', forcesSum.x);
+        line.set('y2', -forcesSum.y);
+        line._setWidthHeight();
+        line.setLeft(particle.position.x+14);
+        line.setTop(height-particle.position.y+14);
+    }
+    
     function addToCanvas(particle)
     {
-        var particleCircle = new fabric.Circle({ top: height-particle.position.y, left: particle.position.x, radius: 15 });
+        var particleCircle = new fabric.Circle({ top: height-particle.position.y, left: particle.position.x, radius: 14 });
         fabricCanvas.add(particleCircle);
+        
+        // arrow: M2,2 L2,11 L10,6 L2,2
+        //var forcesSum = Vector.Vector.sumList(particle.getForces(world));
+        var totalForceLine = new fabric.Line([0, 0, 1, 1], { selectable: false, stroke: "red", 
+            strokeWidth: 3, top: height-particle.position.y+14, left: particle.position.x+14 });
+        updateForceSum(totalForceLine, particle);
+        fabricCanvas.add(totalForceLine);
+        
+        
         fabricCanvas.on("object:moving", function(e)
         {
             if(e.target === particleCircle)
             {
                 updatePosition(e.target, particle);
+                updateForceSum(totalForceLine, particle);
             }
         });
-        return particleCircle;
+        fabricCanvas.on("object:selected", function(e)
+        {
+            if(e.target === particleCircle)
+            {
+                updatePosition(e.target, particle);
+            }
+        })
+        particle.updateView = function()
+        {
+            updateViewPosition(particleCircle, this);
+            updateForceSum(totalForceLine, this);
+        }
     }
     
     angular.module('Labrador', [])
@@ -54,7 +91,7 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
                 particle.position.y = height*(3/4);
                 particle.type = $scope.createType;
                 particle.caption = "Mass " + ($scope.objects.length+1);
-                particle.canvasObject = addToCanvas(particle);
+                addToCanvas(particle);
                 
                 world.objects.push(particle);
             }
@@ -78,10 +115,9 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
                 world.step(timeStep);
                 world.objects.forEach(function(object) { 
                     object.step(timeStep); 
-                    if(object.canvasObject)
+                    if(object.updateView)
                     { 
-                        object.canvasObject.top = height-object.position.y; 
-                        object.canvasObject.left = object.position.x; 
+                        object.updateView();
                     } 
                 });
             }
@@ -91,7 +127,6 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
                 stepAll($scope.timeStep);
                 fabricCanvas.renderAll();
                 $scope.time += $scope.timeStep;
-                $scope.$apply();
             }
             
             $scope.goToTime = function(destinationTime)
