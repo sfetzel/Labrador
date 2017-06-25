@@ -1,7 +1,7 @@
 require([ "./lib/vendor/angular.min", "Vector", "Particle", "World", "ConstantForce", "HookLaw", "FixedParticle", "Spring" ], 
 function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Spring)
 {
-    var fabricCanvas = new fabric.Canvas("simulation-canvas");
+    var fabricCanvas = new fabric.Canvas("simulation-canvas", {preserveObjectStacking: true});
     var width = fabricCanvas.getWidth();
     var height = fabricCanvas.getHeight();
     
@@ -26,11 +26,11 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
     function updateForceSum(line, particle)
     {
         var forcesSum = Vector.Vector.sumList(particle.getForces(world));
-        line.set('x2', forcesSum.x);
-        line.set('y2', -forcesSum.y);
+        line.set('x1', particle.position.x+14);
+        line.set('y1', height-particle.position.y+14);
+        line.set('x2', particle.position.x+forcesSum.x+14);
+        line.set('y2', height-forcesSum.y-particle.position.y+14);
         line._setWidthHeight();
-        line.setLeft(particle.position.x+14);
-        line.setTop(height-particle.position.y+14);
     }
     
     function addToCanvas(particle)
@@ -41,7 +41,7 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
         // arrow: M2,2 L2,11 L10,6 L2,2
         //var forcesSum = Vector.Vector.sumList(particle.getForces(world));
         var totalForceLine = new fabric.Line([0, 0, 1, 1], { selectable: false, stroke: "red", 
-            strokeWidth: 3, top: height-particle.position.y+14, left: particle.position.x+14 });
+            strokeWidth: 3, top: 0, left: 0 });
         updateForceSum(totalForceLine, particle);
         fabricCanvas.add(totalForceLine);
         
@@ -101,7 +101,6 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
                 var spring = new Spring.Spring();
                 spring.firstParticle = $scope.selectedItems[0];
                 spring.secondParticle = $scope.selectedItems[1];
-                console.log($scope.selectedItems);
                 spring.relaxedLength = spring.firstParticle.position.diff(spring.secondParticle.position).norm();
                 spring.newtonPerDistance = 1;
                 spring.type = "spring";
