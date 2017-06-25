@@ -38,6 +38,15 @@ and open the template in the editor.
                 </div>
             </fieldset>
             
+            
+            <fieldset class="form-horizontal" ng-show="selectedItems.length === 1">
+                <legend>Object properties</legend>
+                <div class="form-group" ng-show="selectedItems[0].constructor.name == 'Spring'">
+                    <label class="col-sm-2 control-label">Spring constant</label>
+                    <input step="0.1" type="number" class="form-control" ng-model="selectedItems[0].newtonPerDistance" />
+                </div>
+            </fieldset>
+            
             <fieldset>
                 <legend>Simulation</legend>
                 <div class="form-group">
