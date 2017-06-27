@@ -205,25 +205,33 @@ define("Spring", ["require", "exports"], function (require, exports) {
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-define("HookLaw", ["require", "exports", "Spring", "Particle"], function (require, exports, Spring_1, Particle_3) {
+define("HookLaw", ["require", "exports", "Vector", "Spring", "Particle"], function (require, exports, Vector_4, Spring_1, Particle_3) {
     "use strict";
     var HookLaw = (function () {
         function HookLaw() {
         }
-        HookLaw.prototype.getForce = function (object, world) {
-            var force = null;
+        HookLaw.prototype.getForces = function (object, world) {
+            var forces = new Array();
             if (world !== null && object instanceof Particle_3.Particle) {
                 var self = this;
                 world.objects.forEach(function (worldObject) {
                     if (worldObject instanceof Spring_1.Spring) {
                         if (worldObject.firstParticle == object) {
-                            force = self.getForceOnFirstParticle(object, worldObject);
+                            forces.push(self.getForceOnFirstParticle(object, worldObject));
                         }
                         if (worldObject.secondParticle == object) {
-                            force = self.getForceOnSecondParticle(object, worldObject);
+                            forces.push(self.getForceOnSecondParticle(object, worldObject));
                         }
                     }
                 });
+            }
+            return forces;
+        };
+        HookLaw.prototype.getForce = function (object, world) {
+            var forces = this.getForces(object, world);
+            var force = null;
+            if (forces.length > 0) {
+                force = Vector_4.Vector.sumList(forces);
             }
             return force;
         };
@@ -244,13 +252,4 @@ define("HookLaw", ["require", "exports", "Spring", "Particle"], function (requir
         return HookLaw;
     }());
     exports.HookLaw = HookLaw;
-});
-define("SimulationController", ["require", "exports", "angular"], function (require, exports, angular) {
-    "use strict";
-    var LabradorController = (function () {
-        function LabradorController() {
-        }
-        return LabradorController;
-    }());
-    angular.module('Labrador', []).controller(LabradorController);
 });

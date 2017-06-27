@@ -13,6 +13,9 @@ import { Vector } from "../../www/lib/Vector";
 import { Particle } from "../../www/lib/Particle";
 import { World } from "../../www/lib/World";
 import { ConstantForce } from "../../www/lib/ConstantForce";
+import { Spring } from "../../www/lib/Spring";
+import { HookLaw } from "../../www/lib/HookLaw";
+import { FixedParticle } from "../../www/lib/FixedParticle";
 
 describe("ParticleTest", () => 
 { 
@@ -46,5 +49,54 @@ describe("ParticleTest", () =>
         
         assert.equal(firstLaw.force, forces[0]);
         assert.equal(secondLaw.force, forces[1]);
+    });
+    
+    
+     
+    it("twoSpringsTest", () => 
+    {
+        let world = new World();
+        var hookLaw = new HookLaw();
+        world.laws = [ hookLaw ];
+                
+        let fixedParticle = new FixedParticle();
+        fixedParticle.position.x = 0;
+        fixedParticle.position.y = 0;
+        fixedParticle.position.z = 0;
+        
+        let firstParticle = new Particle();
+        firstParticle.position.x = 15;
+        
+        let secondParticle = new Particle();
+        secondParticle.position.x = 25;
+        
+        let firstSpring = new Spring();
+        firstSpring.relaxedLength = 10;
+        firstSpring.firstParticle = fixedParticle;
+        firstSpring.secondParticle = firstParticle;
+        firstSpring.newtonPerDistance = 1;
+        // actual distance from fixedParticle to firstParticle is 15,
+        // it is 5 longer, forces goes to fixedParticle -5*1
+        assert.equal(hookLaw.getForceOnSecondParticle(firstParticle, firstSpring).x, -5);
+        
+        let secondSpring = new Spring();
+        secondSpring.relaxedLength = 5;
+        secondSpring.firstParticle = firstParticle;
+        secondSpring.secondParticle = secondParticle;
+        secondSpring.newtonPerDistance = 1;
+        // actual distance from firstParticle to secondParticle is 10,
+        // it is 5 longer, forces goes to secondParticle 5*1
+        assert.equal(hookLaw.getForceOnFirstParticle(firstParticle, secondSpring).x, 5);
+        
+        world.objects = [ fixedParticle, firstParticle, secondParticle, firstSpring, secondSpring ];
+        
+        assert.equal(hookLaw.getForces(firstParticle, world).length, 2);
+        
+        let allForces = firstParticle.getForces(world);
+        assert.equal(allForces.length, 1); 
+        let actualForce = Vector.sumList(allForces);
+        assert.equal(actualForce.x, 0);
+        assert.equal(actualForce.y, 0);
+        assert.equal(actualForce.z, 0);
     });
 });

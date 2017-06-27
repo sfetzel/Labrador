@@ -13,9 +13,9 @@ import {Particle} from "./Particle";
 
 export class HookLaw implements ILaw
 {
-    getForce(object:IPhysicsObject, world:World):Vector
+    getForces(object:IPhysicsObject, world:World):Array<Vector>
     {
-        var force = null;
+        var forces = new Array<Vector>();
         if(world !== null && object instanceof Particle)
         {
             var self = this;
@@ -25,14 +25,25 @@ export class HookLaw implements ILaw
                 {
                     if (worldObject.firstParticle == object)
                     {
-                        force = self.getForceOnFirstParticle(object, worldObject);
+                        forces.push(self.getForceOnFirstParticle(object, worldObject));
                     }
                     if (worldObject.secondParticle == object)
                     {
-                        force = self.getForceOnSecondParticle(object, worldObject);
+                        forces.push(self.getForceOnSecondParticle(object, worldObject));
                     }
                 }
             })
+        }
+        return forces;
+    }
+    
+    getForce(object:IPhysicsObject, world:World):Vector
+    {
+        var forces = this.getForces(object, world);
+        var force = null;
+        if (forces.length > 0)
+        {
+            force = Vector.sumList(forces);
         }
         return force;
     }

@@ -4,25 +4,34 @@
  * and open the template in the editor.
  */
 "use strict";
+var Vector_1 = require("./Vector");
 var Spring_1 = require("./Spring");
 var Particle_1 = require("./Particle");
 var HookLaw = (function () {
     function HookLaw() {
     }
-    HookLaw.prototype.getForce = function (object, world) {
-        var force = null;
+    HookLaw.prototype.getForces = function (object, world) {
+        var forces = new Array();
         if (world !== null && object instanceof Particle_1.Particle) {
             var self = this;
             world.objects.forEach(function (worldObject) {
                 if (worldObject instanceof Spring_1.Spring) {
                     if (worldObject.firstParticle == object) {
-                        force = self.getForceOnFirstParticle(object, worldObject);
+                        forces.push(self.getForceOnFirstParticle(object, worldObject));
                     }
                     if (worldObject.secondParticle == object) {
-                        force = self.getForceOnSecondParticle(object, worldObject);
+                        forces.push(self.getForceOnSecondParticle(object, worldObject));
                     }
                 }
             });
+        }
+        return forces;
+    };
+    HookLaw.prototype.getForce = function (object, world) {
+        var forces = this.getForces(object, world);
+        var force = null;
+        if (forces.length > 0) {
+            force = Vector_1.Vector.sumList(forces);
         }
         return force;
     };

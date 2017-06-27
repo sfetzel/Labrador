@@ -99,8 +99,8 @@ function(ang, Vector, Particle, World, ConstantForce, HookLaw, FixedParticle, Sp
             $scope.addSpring = function()
             {
                 var spring = new Spring.Spring();
-                spring.firstParticle = $scope.selectedItems[0];
-                spring.secondParticle = $scope.selectedItems[1];
+                spring.firstParticle = world.objects[world.objects.indexOf($scope.selectedItems[0])];
+                spring.secondParticle = world.objects[world.objects.indexOf($scope.selectedItems[1])];
                 spring.relaxedLength = spring.firstParticle.position.diff(spring.secondParticle.position).norm();
                 spring.newtonPerDistance = 1;
                 spring.type = "spring";
